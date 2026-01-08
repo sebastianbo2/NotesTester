@@ -15,13 +15,30 @@ export default function FileUploader() {
   async function handleFileUpload() {
     if (!file) return;
 
-    setStatus("uploading");
-
+    
     const formData = new FormData();
     formData.append("file", file);
+    
+    await fetch(`${import.meta.env.VITE_SERVER_URL}/api/upload`, {
+      method: "POST",
+      body: formData,
+    })
+
+    setStatus("success")
   }
 
-  async function handleSummarize() {}
+  async function handleSummarize() {
+    if (!file || status !== "success") {
+      return;
+    }
+
+    const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/summarize`, {
+      method: "POST",
+    })
+
+    const data = await res.json();
+    console.log(data.summary)
+  }
 
   return (
     <div>
@@ -29,7 +46,7 @@ export default function FileUploader() {
       {file && status !== "uploading" && (
         <button onClick={handleFileUpload}>Upload</button>
       )}
-      {status === "success" && <button onClick={handleSummarize}>Summarize</button>}
+      {<button onClick={handleSummarize}>Summarize</button>}
     </div>
   );
 }
