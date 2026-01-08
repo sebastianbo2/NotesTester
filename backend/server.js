@@ -38,7 +38,7 @@ app.post("/api/summarize", async (req, res) => {
 });
 
 // TODO: make endpoint dynamic through req.documentId then pass it to isDocReady
-app.post("/api/checkDocStatus", async (req, res) => {
+app.get("/api/checkDocStatus", async (req, res) => {
   try {
     const isReady = await isDocReady();
     res.json({ isReady });

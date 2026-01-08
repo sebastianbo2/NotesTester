@@ -39,9 +39,10 @@ export async function uploadDocToThread(buffer, filename) {
   }
 
   const data = await resp.json();
-  docId = data.documentId;
+  console.log(data);
+  docId = data.document_id;
 
-  return resp;
+  return data.document_id;
 }
 
 /**
@@ -49,13 +50,14 @@ export async function uploadDocToThread(buffer, filename) {
  * @returns whether the document is uploaded
  */
 export async function isDocReady() {
+  console.log("Checking global docId:", docId);
   if (!docId) {
-    return;
+    return false;
   }
 
-  const status = await client.getDocumentStatus(documentId);
+  const status = await client.getDocumentStatus(docId);
+  console.log(status.status);
   if (status.status === "indexed") {
-    console.log("Document indexed successfully!");
     return true;
   } else if (status.status === "failed") {
     console.log("Indexing failed:", status.statusMessage);
