@@ -1,14 +1,14 @@
-import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Brain, Upload, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { FolderSidebar } from '@/components/documents/FolderSidebar';
-import { DocumentCard } from '@/components/documents/DocumentCard';
-import { FloatingActionBar } from '@/components/documents/FloatingActionBar';
-import { ExamConfigModal } from '@/components/ExamConfigModal';
-import { mockFolders, mockDocuments } from '@/lib/mockData';
-import { ExamConfig } from '@/types/exam';
-import { Link } from 'react-router-dom';
+import { useState, useRef, useEffect, ChangeEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import { Brain, Upload, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FolderSidebar } from "@/components/documents/FolderSidebar";
+import { DocumentCard } from "@/components/documents/DocumentCard";
+import { FloatingActionBar } from "@/components/documents/FloatingActionBar";
+import { ExamConfigModal } from "@/components/ExamConfigModal";
+import { mockFolders, mockDocuments } from "@/lib/mockData";
+import { ExamConfig, Document } from "@/types/exam";
+import { Link } from "react-router-dom";
 
 const DocumentManagement = () => {
   const navigate = useNavigate();
@@ -16,15 +16,39 @@ const DocumentManagement = () => {
   const [selectedDocIds, setSelectedDocIds] = useState<Set<string>>(new Set());
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [documents, setDocuments] = useState(mockDocuments);
-  const uploadFileRef = useRef<HTMLInputElement | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
-  useEffect(() => {
-    console.log(uploadFileRef.current)
-  }, [uploadFileRef.current])
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const filteredDocuments = selectedFolderId
     ? documents.filter((doc) => doc.folderId === selectedFolderId)
     : documents;
+
+  // DOCUMENT UPLOADING
+  useEffect(() => {
+    if (uploadedFile) {
+      // this doesnt actually add them to DB
+
+      const fullName = uploadedFile.name.split(".");
+
+      const newDoc: Document = {
+        id: crypto.randomUUID(),
+        name: fullName[0],
+        type: "pdf",
+        folderId: "folder-1",
+        size: "1.3MB",
+        uploadedAt: new Date(),
+      };
+      setDocuments([...documents, newDoc]);
+    }
+  }, [uploadedFile]);
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setUploadedFile(e.target.files[0]);
+      e.target.value = "";
+    }
+  };
 
   const handleDocumentSelect = (id: string, selected: boolean) => {
     const newSelected = new Set(selectedDocIds);
@@ -41,6 +65,9 @@ const DocumentManagement = () => {
     const newSelected = new Set(selectedDocIds);
     newSelected.delete(id);
     setSelectedDocIds(newSelected);
+
+    // allow user to reupload same file
+    setUploadedFile(null);
   };
 
   const handleClearSelection = () => {
@@ -53,7 +80,9 @@ const DocumentManagement = () => {
 
   const handleStartExam = (config: ExamConfig) => {
     setIsConfigModalOpen(false);
-    navigate('/exam', { state: { config, selectedDocIds: Array.from(selectedDocIds) } });
+    navigate("/exam", {
+      state: { config, selectedDocIds: Array.from(selectedDocIds) },
+    });
   };
 
   return (
@@ -71,8 +100,18 @@ const DocumentManagement = () => {
             </div>
           </Link>
           <div className="flex items-center gap-2">
-            <Button onClick={() => uploadFileRef.current.click()} variant="outline" className="gap-2">
-              <input type='file' id='uploadFileRef' className="hidden" ref={uploadFileRef}/>
+            <Button
+              onClick={() => fileInputRef.current.click()}
+              variant="outline"
+              className="gap-2"
+            >
+              <input
+                onChange={handleFileChange}
+                type="file"
+                id="uploadFileRef"
+                className="hidden"
+                ref={fileInputRef}
+              />
               <Upload className="w-4 h-4" />
               Upload
             </Button>
@@ -97,10 +136,11 @@ const DocumentManagement = () => {
             <h2 className="text-2xl font-bold text-foreground">
               {selectedFolderId
                 ? mockFolders.find((f) => f.id === selectedFolderId)?.name
-                : 'All Documents'}
+                : "All Documents"}
             </h2>
             <p className="text-muted-foreground">
-              {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''}
+              {filteredDocuments.length} document
+              {filteredDocuments.length !== 1 ? "s" : ""}
             </p>
           </div>
 
