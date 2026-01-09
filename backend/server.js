@@ -14,6 +14,36 @@ app.get("/", (req, res) => {
   res.send("Hello world express");
 });
 
+// format : id,type,question,options,correctAnswer,isLatex
+
+const sampleQuestions = [
+  {
+    question: 'What is the derivative of $f(x) = x^3 + 2x^2 - 5x + 1$?',
+    type: "multiple-choice",
+    options: ['$3x^2 + 4x - 5$', '$3x^2 + 2x - 5$', '$x^2 + 4x - 5$', '$3x^3 + 4x^2 - 5$'],
+  },
+  {
+    question: 'The integral $\\int_0^1 x^2 dx = \\frac{1}{3}$',
+    type: "true-false",
+    options: ["True", "False"],
+  },
+  {
+    question: 'Evaluate the limit: $\\lim_{x \\to 0} \\frac{\\sin(x)}{x}$',
+    type: "short-answer",
+    options: [],
+  },
+  {
+    question: 'Which matrix operation is NOT commutative?',
+    type: "multiple-choice",
+    options: ['Addition', 'Scalar multiplication', 'Matrix multiplication', 'Transpose'],
+  },
+  {
+    question: 'Explain the concept of eigenvalues and provide the formula for finding them for a 2×2 matrix.',
+    type: "long-answer",
+    options: [],
+  }
+]
+
 app.get("/api/files", (req, res) => {
   const fileIds = req.query.fileIds
 
@@ -25,7 +55,7 @@ app.get("/api/files", (req, res) => {
 
   console.log(ids)
 
-  res.json(ids);
+  res.json(sampleQuestions);
 })
 
 app.post("/api/upload", upload.single("file"), async (req, res) => {
