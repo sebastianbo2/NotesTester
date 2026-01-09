@@ -13,7 +13,7 @@ export const QuestionNavigator = ({
   onQuestionClick,
 }: QuestionNavigatorProps) => {
   return (
-    <div className="bg-card rounded-xl border border-border p-4 sticky top-4">
+    <div className="bg-card rounded-xl border border-border p-4 fixed top-32 w-52">
       <h3 className="text-sm font-medium text-muted-foreground mb-4">Questions</h3>
       <div className="grid grid-cols-5 gap-2">
         {questions.map((question, index) => (
