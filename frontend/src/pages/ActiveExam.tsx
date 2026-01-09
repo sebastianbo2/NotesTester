@@ -8,6 +8,25 @@ import { ExamLoadingState } from '@/components/ExamLoadingState';
 import { generateExam } from '@/lib/mockApi';
 import { Question, ExamConfig } from '@/types/exam';
 import { Link } from 'react-router-dom';
+import { Document } from '@/types/exam';
+
+type UploadStatus = "idle" | "uploading" | "indexing" | "success" | "error";
+
+const requestFiles = async (fileIds: string[]) => {
+
+  const params = new URLSearchParams();
+
+  fileIds.forEach(id => params.append("fileIds", id));
+
+  const link = `${import.meta.env.VITE_SERVER_URL}/api/files?${params.toString()}`
+
+  const response = await fetch(link)
+
+  const json = response.json()
+
+  console.log(json)
+  return json
+}
 
 const ActiveExam = () => {
   const location = useLocation();
@@ -16,8 +35,12 @@ const ActiveExam = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [status, setStatus] = useState<UploadStatus>("idle");
 
   const config = location.state?.config as ExamConfig | undefined;
+  const fileIds = location.state?.selectedDocIds as string[];
+
+  requestFiles(fileIds)
 
   useEffect(() => {
     if (!config) {

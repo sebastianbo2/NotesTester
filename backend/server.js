@@ -14,6 +14,20 @@ app.get("/", (req, res) => {
   res.send("Hello world express");
 });
 
+app.get("/api/files", (req, res) => {
+  const fileIds = req.query.fileIds
+
+  const ids = Array.isArray(fileIds)
+  ? fileIds 
+  : fileIds 
+  ? [fileIds]
+  : [];
+
+  console.log(ids)
+
+  res.json(ids);
+})
+
 app.post("/api/upload", upload.single("file"), async (req, res) => {
   try {
     const docId = await uploadDocToThread(
