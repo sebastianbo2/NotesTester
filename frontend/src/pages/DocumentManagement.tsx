@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Brain, Upload, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,11 @@ const DocumentManagement = () => {
   const [selectedDocIds, setSelectedDocIds] = useState<Set<string>>(new Set());
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [documents, setDocuments] = useState(mockDocuments);
+  const uploadFileRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    console.log(uploadFileRef.current)
+  }, [uploadFileRef.current])
 
   const filteredDocuments = selectedFolderId
     ? documents.filter((doc) => doc.folderId === selectedFolderId)
@@ -66,7 +71,8 @@ const DocumentManagement = () => {
             </div>
           </Link>
           <div className="flex items-center gap-2">
-            <Button variant="outline" className="gap-2">
+            <Button onClick={() => uploadFileRef.current.click()} variant="outline" className="gap-2">
+              <input type='file' id='uploadFileRef' className="hidden" ref={uploadFileRef}/>
               <Upload className="w-4 h-4" />
               Upload
             </Button>

@@ -43,7 +43,11 @@ export const DocumentCard = ({
       <div className="flex-1 min-w-0">
         <h4 className="font-medium text-foreground truncate">{document.name}</h4>
         <p className="text-xs text-muted-foreground">
-          {document.size} • {document.uploadedAt.toLocaleDateString()}
+          {document.size} • {document.uploadedAt.toLocaleDateString("en-CA", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit"
+          })}
         </p>
       </div>
       
