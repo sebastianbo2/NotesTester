@@ -53,9 +53,11 @@ app.get("/api/files", (req, res) => {
   ? [fileIds]
   : [];
 
+  setTimeout(() => res.json(sampleQuestions), 3000)
+
   console.log(ids)
 
-  res.json(sampleQuestions);
+  // res.json(sampleQuestions);
 })
 
 const correctedAnswers = [

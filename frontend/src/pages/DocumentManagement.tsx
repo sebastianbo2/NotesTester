@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, ChangeEvent } from "react";
+import { useState, useRef, useEffect, ChangeEvent, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Brain, Upload, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,7 @@ const DocumentManagement = () => {
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [documents, setDocuments] = useState<Document[] | null>([]);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<Error | undefined>(undefined);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -200,14 +200,9 @@ const DocumentManagement = () => {
   const handleStartExam = async (config: ExamConfig) => {
     setIsConfigModalOpen(false);
 
-    const examQuestions: string[] = await requestFiles(
-      Array.from(selectedDocIds)
-    );
-
-    console.log(examQuestions);
 
     navigate("/exam", {
-      state: { config, questions: examQuestions },
+      state: { config, questions: await requestFiles(Array.from(selectedDocIds)) },
     });
   };
 
@@ -271,6 +266,7 @@ const DocumentManagement = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-24">
+            
             {filteredDocuments.map((doc) => (
               <div key={doc.id} className="group">
                 <DocumentCard
