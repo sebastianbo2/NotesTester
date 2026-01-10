@@ -1,17 +1,18 @@
 import { useState, useRef, useEffect, ChangeEvent, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import { Brain, Upload, Plus } from "lucide-react";
+import { Brain, Upload, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FolderSidebar } from "@/components/documents/FolderSidebar";
+import { FolderSidebar } from "@/components/folders/FolderSidebar";
 import { DocumentCard } from "@/components/documents/DocumentCard";
 import { FloatingActionBar } from "@/components/documents/FloatingActionBar";
 import { ExamConfigModal } from "@/components/ExamConfigModal";
-import { mockFolders } from "@/lib/mockData";
-import { ExamConfig, Document } from "@/types/exam";
+import { ExamConfig, Document, Folder } from "@/types/exam";
 import { Link } from "react-router-dom";
 import supabase from "@/config/supabaseClient";
 import { ExamLoadingState } from "@/components/ExamLoadingState";
 import Logo from "@/components/icons/Logo";
+import DeleteFolderBanner from "@/components/folders/DeleteFolderBanner";
+import CreateFolderBanner from "@/components/folders/CreateFolderBanner";
 
 const requestFiles = async (fileIds: string[]) => {
   const params = new URLSearchParams();
@@ -36,9 +37,12 @@ const DocumentManagement = () => {
   const [selectedDocIds, setSelectedDocIds] = useState<Set<string>>(new Set());
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [documents, setDocuments] = useState<Document[] | null>([]);
+  const [folders, setFolders] = useState<Folder[] | null>([]);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [error, setError] = useState<Error | undefined>(undefined);
   const [loadingExam, setLoadingExam] = useState(false);
+  const [deleteBannerOpen, setDeleteBannerOpen] = useState(false);
+  const [createBannerOpen, setCreateBannerOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -74,15 +78,15 @@ const DocumentManagement = () => {
 
           // unique path to avoid collisions
           // TODO: {user_id}/{unique_file_id}/{original_filename} when auth is done
+          const docId = crypto.randomUUID();
           const fileExt = uploadedFile.name.split(".").pop();
-          const uniqueFileName = `${crypto.randomUUID()}.${fileExt}`;
-          // const storagePath = `uploads/${uniqueFileName}`;
-          const storagePath = uniqueFileName;
+          const uniqueFileName = `${docId}.${fileExt}`;
+          const storagePath = `${selectedFolderId ?? ""}/${uniqueFileName}`;
 
           // upload "uploadedFile" to supabase "documents" bucket
           const { data: storageData, error: storageError } =
             await supabase.storage
-              .from("documents") // Ensure this bucket exists in Supabase Storage
+              .from("documents")
               .upload(storagePath, uploadedFile);
 
           if (storageError) {
@@ -94,6 +98,7 @@ const DocumentManagement = () => {
             .from("documents")
             .insert([
               {
+                id: docId,
                 display_name: uploadedFile.name,
                 storage_path: storagePath,
                 status: "pending", // default value
@@ -158,7 +163,6 @@ const DocumentManagement = () => {
     const deleteFromDB = async () => {
       try {
         // 1. Delete the physical file from the Storage Bucket
-        console.log(document.storage_path);
         const { data: storageData, error: storageError } =
           await supabase.storage
             .from("documents")
@@ -209,88 +213,218 @@ const DocumentManagement = () => {
     });
   };
 
+  const onFolderDelete = () => {
+    setDeleteBannerOpen(true);
+  };
+
+  const handleDeleteFolder = async () => {
+    setDeleteBannerOpen(false);
+    setFolders((prev) => prev.filter((f) => f.id !== selectedFolderId));
+    setSelectedFolderId(null);
+
+    // 1. Identify which documents belong to this folder
+    // We check if the storage_path contains the folder ID (or name)
+    const filesInFolder = documents.filter((doc) =>
+      doc.storage_path.includes(selectedFolderId)
+    );
+
+    // 2. Perform the bulk delete for the files
+    if (filesInFolder.length > 0) {
+      await handleBulkDelete(filesInFolder);
+    }
+
+    try {
+      const { error } = await supabase
+        .from("folders")
+        .delete()
+        .eq("id", selectedFolderId);
+
+      if (error) throw error;
+
+      console.log("Folder and all associated contents deleted.");
+    } catch (err) {
+      console.error("Folder deletion failed:", err.message);
+      setError(err.message);
+    }
+  };
+
+  const handleBulkDelete = async (filesToDelete: Document[]) => {
+    // 1. Instant UI Update (Optimistic)
+    const idsToRemove = filesToDelete.map((doc) => doc.id);
+    const pathsToRemove = filesToDelete.map((doc) => doc.storage_path);
+
+    setDocuments((prev) => prev.filter((doc) => !idsToRemove.includes(doc.id)));
+
+    const newSelected = new Set(selectedDocIds);
+    idsToRemove.forEach((id) => newSelected.delete(id));
+    setSelectedDocIds(newSelected);
+    setUploadedFile(null);
+
+    try {
+      // 2. Bulk Delete from Supabase Storage
+      // .remove() handles an array, so this is one network request
+      console.log;
+      const { error: storageError } = await supabase.storage
+        .from("documents")
+        .remove(pathsToRemove);
+
+      if (storageError) {
+        setError(storageError);
+      }
+
+      // 3. Bulk Delete from Database Table
+      // Using .in() allows you to delete multiple rows by ID in one shot
+      const { error: dbError } = await supabase
+        .from("documents")
+        .delete()
+        .in("id", idsToRemove);
+
+      if (dbError) {
+        setError(dbError);
+      }
+
+      console.log(`${idsToRemove.length} files deleted successfully`);
+    } catch (err) {
+      console.error("Bulk deletion failed:", err.message);
+      setError(err.message);
+      // Optional: Re-fetch documents if the delete failed to sync UI
+    }
+  };
+
+  const handleCreateFolder = async (name: string) => {
+    const { data, error } = await supabase
+      .from("folders")
+      // TODO : .insert([{ name, user_id: currentUserId }])
+      .insert([{ name }])
+      .select()
+      .single();
+
+    if (!error && data) {
+      setFolders((prev) => [...prev, data]);
+      setCreateBannerOpen(false);
+    }
+  };
+
   if (loadingExam) {
     return <ExamLoadingState />;
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Logo />
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={() => fileInputRef.current.click()}
-              variant="outline"
-              className="gap-2"
-            >
-              <input
-                onChange={handleFileChange}
-                type="file"
-                id="uploadFileRef"
-                className="hidden"
-                ref={fileInputRef}
-              />
-              <Upload className="w-4 h-4" />
-              Upload
-            </Button>
-            <Button variant="outline" className="gap-2">
-              <Plus className="w-4 h-4" />
-              New Folder
-            </Button>
+    <>
+      <div className="min-h-screen bg-background flex flex-col">
+        {/* Header */}
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+            <Logo />
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => fileInputRef.current.click()}
+                variant="outline"
+                className="gap-2"
+              >
+                <input
+                  onChange={handleFileChange}
+                  type="file"
+                  id="uploadFileRef"
+                  className="hidden"
+                  ref={fileInputRef}
+                />
+                <Upload className="w-4 h-4" />
+                Upload
+              </Button>
+              <Button
+                onClick={() => setCreateBannerOpen(true)}
+                variant="outline"
+                className="gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                New Folder
+              </Button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content */}
-      <div className="flex-1 flex">
-        <FolderSidebar
-          folders={mockFolders}
-          selectedFolderId={selectedFolderId}
-          onFolderSelect={setSelectedFolderId}
+        {/* Main Content */}
+        <div className="flex-1 flex">
+          <FolderSidebar
+            folders={folders}
+            selectedFolderId={selectedFolderId}
+            onFolderSelect={setSelectedFolderId}
+          />
+
+          <main className="flex-1 p-6">
+            <div className="mb-6">
+              <div className="flex gap-5">
+                <h2 className="text-2xl font-bold text-foreground">
+                  {selectedFolderId
+                    ? folders.find((f) => f.id === selectedFolderId)?.name
+                    : "All Documents"}
+                </h2>
+                {selectedFolderId && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onFolderDelete();
+                    }}
+                    className="group-hover:opacity-100 hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                )}
+              </div>
+              <p className="text-muted-foreground">
+                {filteredDocuments.length} document
+                {filteredDocuments.length !== 1 ? "s" : ""}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-24">
+              {filteredDocuments.map((doc) => (
+                <div key={doc.id} className="group">
+                  <DocumentCard
+                    document={doc}
+                    isSelected={selectedDocIds.has(doc.id)}
+                    onSelect={handleDocumentSelect}
+                    onDelete={handleDeleteDocument}
+                  />
+                </div>
+              ))}
+            </div>
+          </main>
+        </div>
+
+        <FloatingActionBar
+          selectedCount={selectedDocIds.size}
+          onGenerateExam={handleGenerateExam}
+          onClearSelection={handleClearSelection}
         />
 
-        <main className="flex-1 p-6">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-foreground">
-              {selectedFolderId
-                ? mockFolders.find((f) => f.id === selectedFolderId)?.name
-                : "All Documents"}
-            </h2>
-            <p className="text-muted-foreground">
-              {filteredDocuments.length} document
-              {filteredDocuments.length !== 1 ? "s" : ""}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-24">
-            {filteredDocuments.map((doc) => (
-              <div key={doc.id} className="group">
-                <DocumentCard
-                  document={doc}
-                  isSelected={selectedDocIds.has(doc.id)}
-                  onSelect={handleDocumentSelect}
-                  onDelete={handleDeleteDocument}
-                />
-              </div>
-            ))}
-          </div>
-        </main>
+        <ExamConfigModal
+          isOpen={isConfigModalOpen}
+          onClose={() => setIsConfigModalOpen(false)}
+          onStartExam={handleStartExam}
+        />
       </div>
 
-      <FloatingActionBar
-        selectedCount={selectedDocIds.size}
-        onGenerateExam={handleGenerateExam}
-        onClearSelection={handleClearSelection}
-      />
+      {deleteBannerOpen && (
+        <DeleteFolderBanner
+          folderId={selectedFolderId}
+          onDelete={handleDeleteFolder}
+          onCancel={() => setDeleteBannerOpen(false)}
+          isOpen={deleteBannerOpen}
+        />
+      )}
 
-      <ExamConfigModal
-        isOpen={isConfigModalOpen}
-        onClose={() => setIsConfigModalOpen(false)}
-        onStartExam={handleStartExam}
-      />
-    </div>
+      {createBannerOpen && (
+        <CreateFolderBanner
+          onCreate={handleCreateFolder}
+          onCancel={() => setCreateBannerOpen(false)}
+          isOpen={createBannerOpen}
+        />
+      )}
+    </>
   );
 };
 
