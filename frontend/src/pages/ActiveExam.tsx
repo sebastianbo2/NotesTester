@@ -34,12 +34,9 @@ const ActiveExam = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [status, setStatus] = useState<UploadStatus>("idle");
+  const [questions, setQuestions] = useState<Question[]>([]);
 
   const config = location.state?.config as ExamConfig | undefined;
-
-  const examQuestions = location.state?.questions as Question[]
-
-  const [questions, setQuestions] = useState<Question[]>(examQuestions);
 
   useEffect(() => {
     if (!config) {
@@ -47,14 +44,14 @@ const ActiveExam = () => {
       return;
     }
 
-    // const loadExam = async () => {
-    //   setIsLoading(true);
-    //   const examQuestions = await generateExam(config);
-    //   setQuestions(examQuestions);
-    //   setIsLoading(false);
-    // };
+    const loadExam = async () => {
+      setIsLoading(true);
+      const examQuestions = location.state?.questions as Question[] | undefined;
+      setQuestions(examQuestions);
+      setIsLoading(false);
+    };
 
-    // loadExam();
+    loadExam();
   }, [config, navigate]);
 
   const handleAnswerChange = (questionId: number, answer: string) => {
@@ -127,7 +124,7 @@ const ActiveExam = () => {
 
           {/* Questions List */}
           <main className="flex-1 max-w-3xl mx-auto space-y-6 pb-24">
-            {examQuestions.map((question, index) => (
+            {questions.map((question, index) => (
               <div
                 key={index}
                 ref={(el) => (questionRefs.current[index] = el)}
