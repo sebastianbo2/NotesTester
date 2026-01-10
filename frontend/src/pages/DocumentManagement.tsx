@@ -9,22 +9,24 @@ import { ExamConfigModal } from "@/components/ExamConfigModal";
 import { mockFolders, mockDocuments } from "@/lib/mockData";
 import { ExamConfig, Document } from "@/types/exam";
 import { Link } from "react-router-dom";
+import supabase from "@/config/supabaseClient";
 
 const requestFiles = async (fileIds: string[]) => {
-
   const params = new URLSearchParams();
 
-  fileIds.forEach(id => params.append("fileIds", id));
+  fileIds.forEach((id) => params.append("fileIds", id));
 
-  const link = `${import.meta.env.VITE_SERVER_URL}/api/files?${params.toString()}`
+  const link = `${
+    import.meta.env.VITE_SERVER_URL
+  }/api/files?${params.toString()}`;
 
-  const response = await fetch(link)
+  const response = await fetch(link);
 
-  const json = response.json()
+  const json = response.json();
 
-  console.log(json)
-  return json
-}
+  console.log(json);
+  return json;
+};
 
 const DocumentManagement = () => {
   const navigate = useNavigate();
@@ -39,6 +41,10 @@ const DocumentManagement = () => {
   const filteredDocuments = selectedFolderId
     ? documents.filter((doc) => doc.folderId === selectedFolderId)
     : documents;
+
+  useEffect(() => {
+    console.log(supabase);
+  }, []);
 
   // DOCUMENT UPLOADING
   useEffect(() => {
@@ -97,9 +103,11 @@ const DocumentManagement = () => {
   const handleStartExam = async (config: ExamConfig) => {
     setIsConfigModalOpen(false);
 
-    const examQuestions: string[] = await requestFiles(Array.from(selectedDocIds));
+    const examQuestions: string[] = await requestFiles(
+      Array.from(selectedDocIds)
+    );
 
-    console.log(examQuestions)
+    console.log(examQuestions);
 
     navigate("/exam", {
       state: { config, questions: examQuestions },
