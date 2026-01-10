@@ -12,6 +12,21 @@ import { Document } from '@/types/exam';
 
 type UploadStatus = "idle" | "uploading" | "indexing" | "success" | "error";
 
+const validateAnswers = async (questions: Question[]) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_SERVER_URL}/api/answers`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ questions }),
+    }
+  );
+
+  return await response.json();
+}
+
 const ActiveExam = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -58,8 +73,10 @@ const ActiveExam = () => {
     questionRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
-  const handleSubmitExam = () => {
-    navigate('/results', { state: { questions } });
+  const handleSubmitExam = async () => {
+    const answeredQuestions = await validateAnswers(questions)
+
+    navigate('/results', { state: { questions: answeredQuestions} });
   };
 
   if (isLoading) {

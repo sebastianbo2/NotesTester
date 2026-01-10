@@ -39,16 +39,15 @@ export const QuestionCard = ({
             className="space-y-3"
           >
             {question.options?.map((option, optIndex) => (
-              <Label htmlFor={`${index}-${optIndex}`} className="flex-1 cursor-pointer">
+              <Label htmlFor={`${index}-${optIndex}`} className="flex-1 cursor-pointer" key={`${index}-${optIndex}`}>
               <div
-                key={optIndex}
                 className={cn(
                   'flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-accent/50 transition-colors',
                   // showResults && option === question.correctAnswer && 'bg-success-muted border-success',
                   showResults && question.userAnswer === option && !isCorrect && 'bg-error-muted border-destructive'
                 )}
               >
-                <RadioGroupItem value={option} id={`${index}-${optIndex}`} />
+                <RadioGroupItem value={option} id={`${index}-${optIndex}`} key={`${index}-${optIndex}`}/>
                   <LatexRenderer content={option} />
               </div>
               </Label>
@@ -67,7 +66,7 @@ export const QuestionCard = ({
           >
             {['True', 'False'].map((option) => (
               <ToggleGroupItem
-                key={option}
+                key={`${index}-${option}`}
                 value={option}
                 className={cn(
                   'px-8 py-3 border',

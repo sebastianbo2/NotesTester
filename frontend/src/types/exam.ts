@@ -6,7 +6,7 @@ export interface Question {
   type: QuestionType;
   options?: string[];
   userAnswer?: string;
-  correctAnswer: string;
+  correctAnswer?: string;
   isLatex: boolean;
 }
 
