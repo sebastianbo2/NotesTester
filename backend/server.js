@@ -23,7 +23,11 @@ const sampleQuestions = [
     options: ['$3x^2 + 4x - 5$', '$3x^2 + 2x - 5$', '$x^2 + 4x - 5$', '$3x^3 + 4x^2 - 5$'],
   },
   {
-    question: 'The integral $\\int_0^1 x^2 dx = \\frac{1}{3}$',
+    question: `
+\\[
+\\int_0^1 x^2 dx = \\frac{1}{3}
+\\]
+`,
     type: "true-false",
     options: ["True", "False"],
   },
@@ -38,7 +42,7 @@ const sampleQuestions = [
     options: ['Addition', 'Scalar multiplication', 'Matrix multiplication', 'Transpose'],
   },
   {
-    question: 'Explain the concept of six sevens and provide the formula for finding them for a 2×2 matrix.',
+    question: 'Explain the concept of eigenvalues and provide the formula for finding them for a 2×2 matrix.',
     type: "long-answer",
     options: [],
   }
@@ -53,9 +57,12 @@ app.get("/api/files", (req, res) => {
   ? [fileIds]
   : [];
 
-  setTimeout(() => res.json(sampleQuestions), 3000)
+  setTimeout(() => {
+    res.json(sampleQuestions)
+    console.log("Timer ended")
+}, 3000)
 
-  console.log(ids)
+  console.log("print: ", ids)
 
   // res.json(sampleQuestions);
 })
