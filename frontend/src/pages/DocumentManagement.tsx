@@ -84,7 +84,6 @@ const DocumentManagement = () => {
           }
 
           console.log("Document ready for processing:", dbData[0]);
-
           // STATE (FRONTEND)
           const newDoc: Document = {
             id: crypto.randomUUID(),
@@ -92,7 +91,7 @@ const DocumentManagement = () => {
             type: "pdf",
             folderId: "folder-1",
             size: "1.3MB",
-            uploadedAt: new Date(),
+            uploadedAt: dbData[0]["created_at"],
           };
           setDocuments([...documents, newDoc]);
         } catch (err) {
