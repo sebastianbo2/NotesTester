@@ -28,12 +28,12 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
 
-            {/* <Route element={<ProtectedRoutes />}> */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/documents" element={<DocumentManagement />} />
-            <Route path="/exam" element={<ActiveExam />} />
-            <Route path="/results" element={<Results />} />
-            {/* </Route> */}
+            <Route element={<ProtectedRoutes />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/documents" element={<DocumentManagement />} />
+              <Route path="/exam" element={<ActiveExam />} />
+              <Route path="/results" element={<Results />} />
+            </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

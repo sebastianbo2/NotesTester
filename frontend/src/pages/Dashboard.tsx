@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Brain,
   FolderOpen,
@@ -19,8 +19,19 @@ import { Badge } from "@/components/ui/badge";
 import { mockExamHistory } from "@/lib/mockData";
 import { cn } from "@/lib/utils";
 import Logo from "@/components/icons/Logo";
+import { useAuth } from "@/context/AuthContext";
 
 const Dashboard = () => {
+  const { logOutUser } = useAuth();
+
+  const handleLogOut = async (e) => {
+    try {
+      await logOutUser();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const getScoreBadgeVariant = (score: number) => {
     if (score >= 80) return "bg-success-muted text-success border-success/30";
     if (score >= 50) return "bg-warning/10 text-warning border-warning/30";
@@ -41,6 +52,9 @@ const Dashboard = () => {
             </Button>
             <Button variant="ghost" asChild>
               <Link to="/history">History</Link>
+            </Button>
+            <Button onClick={handleLogOut} variant="ghost" asChild>
+              <Link to="/signup">Log out</Link>
             </Button>
           </nav>
         </div>
