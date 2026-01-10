@@ -30,14 +30,9 @@ export default function Login() {
         const result = await logInUser(email, password);
 
         if (result.success === false) {
-          if (
-            result.error.message.includes("already registered") ||
-            (result.error as any).code === "user_already_exists"
-          ) {
-            setEmailError(true);
-            setEmailErrorMessage(
-              "This email is already in use. Try logging in instead."
-            );
+          if ((result.error as any).code === "invalid_credentials") {
+            setPasswordError(true);
+            setPasswordErrorMessage("Invalid email or password");
           } else {
             setError(result.error.message);
           }
