@@ -1,13 +1,13 @@
 export type QuestionType = 'multiple-choice' | 'short-answer' | 'true-false' | 'long-answer';
 
 export interface Question {
-  id: string;
-  type: QuestionType;
+  id: string
   question: string;
+  type: QuestionType;
   options?: string[];
-  correctAnswer: string;
   userAnswer?: string;
-  isLatex?: boolean;
+  correctAnswer: string;
+  isLatex: boolean;
 }
 
 export interface ExamConfig {

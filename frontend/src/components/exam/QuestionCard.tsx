@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 interface QuestionCardProps {
   question: Question;
   index: number;
-  onAnswerChange: (questionId: string, answer: string) => void;
+  onAnswerChange: (questionId: number, answer: string) => void;
   showResults?: boolean;
 }
 
@@ -20,7 +20,8 @@ export const QuestionCard = ({
   onAnswerChange,
   showResults = false,
 }: QuestionCardProps) => {
-  const isCorrect = question.userAnswer?.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
+  // const isCorrect = question.userAnswer?.toLowerCase().trim() === question.correctAnswer.toLowerCase().trim();
+  const isCorrect = false;
 
   const getResultClasses = () => {
     if (!showResults) return '';
@@ -33,7 +34,7 @@ export const QuestionCard = ({
         return (
           <RadioGroup
             value={question.userAnswer || ''}
-            onValueChange={(value) => onAnswerChange(question.id, value)}
+            onValueChange={(value) => onAnswerChange(index, value)}
             disabled={showResults}
             className="space-y-3"
           >
@@ -42,12 +43,12 @@ export const QuestionCard = ({
                 key={optIndex}
                 className={cn(
                   'flex items-center space-x-3 p-3 rounded-lg border border-border hover:bg-accent/50 transition-colors',
-                  showResults && option === question.correctAnswer && 'bg-success-muted border-success',
+                  // showResults && option === question.correctAnswer && 'bg-success-muted border-success',
                   showResults && question.userAnswer === option && !isCorrect && 'bg-error-muted border-destructive'
                 )}
               >
-                <RadioGroupItem value={option} id={`${question.id}-${optIndex}`} />
-                <Label htmlFor={`${question.id}-${optIndex}`} className="flex-1 cursor-pointer">
+                <RadioGroupItem value={option} id={`${index}-${optIndex}`} />
+                <Label htmlFor={`${index}-${optIndex}`} className="flex-1 cursor-pointer">
                   <LatexRenderer content={option} />
                 </Label>
               </div>
@@ -60,7 +61,7 @@ export const QuestionCard = ({
           <ToggleGroup
             type="single"
             value={question.userAnswer || ''}
-            onValueChange={(value) => value && onAnswerChange(question.id, value)}
+            onValueChange={(value) => value && onAnswerChange(index, value)}
             disabled={showResults}
             className="justify-start gap-3"
           >
@@ -70,8 +71,8 @@ export const QuestionCard = ({
                 value={option}
                 className={cn(
                   'px-8 py-3 border',
-                  showResults && option === question.correctAnswer && 'bg-success-muted border-success text-success',
-                  showResults && question.userAnswer === option && option !== question.correctAnswer && 'bg-error-muted border-destructive text-destructive'
+                  // showResults && option === question.correctAnswer && 'bg-success-muted border-success text-success',
+                  // showResults && question.userAnswer === option && option !== question.correctAnswer && 'bg-error-muted border-destructive text-destructive'
                 )}
               >
                 {option}
@@ -85,7 +86,7 @@ export const QuestionCard = ({
           <div className="space-y-2">
             <Input
               value={question.userAnswer || ''}
-              onChange={(e) => onAnswerChange(question.id, e.target.value)}
+              onChange={(e) => onAnswerChange(index, e.target.value)}
               disabled={showResults}
               placeholder="Enter your answer..."
               className={cn(
@@ -98,7 +99,7 @@ export const QuestionCard = ({
               <div className="text-sm">
                 <span className="text-muted-foreground">Correct answer: </span>
                 <span className="text-success font-medium">
-                  <LatexRenderer content={question.correctAnswer} />
+                  {/* <LatexRenderer content={question.correctAnswer} /> */}
                 </span>
               </div>
             )}
@@ -110,7 +111,7 @@ export const QuestionCard = ({
           <div className="space-y-2">
             <Textarea
               value={question.userAnswer || ''}
-              onChange={(e) => onAnswerChange(question.id, e.target.value)}
+              onChange={(e) => onAnswerChange(index, e.target.value)}
               disabled={showResults}
               placeholder="Write your detailed answer..."
               rows={4}
@@ -122,7 +123,7 @@ export const QuestionCard = ({
             {showResults && (
               <div className="mt-3 p-3 rounded-lg bg-accent/50">
                 <span className="text-sm font-medium text-muted-foreground">Model Answer:</span>
-                <p className="text-sm mt-1">{question.correctAnswer}</p>
+                {/* <p className="text-sm mt-1">{question.correctAnswer}</p> */}
               </div>
             )}
           </div>

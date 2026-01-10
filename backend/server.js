@@ -38,7 +38,7 @@ const sampleQuestions = [
     options: ['Addition', 'Scalar multiplication', 'Matrix multiplication', 'Transpose'],
   },
   {
-    question: 'Explain the concept of eigenvalues and provide the formula for finding them for a 2×2 matrix.',
+    question: 'Explain the concept of six sevens and provide the formula for finding them for a 2×2 matrix.',
     type: "long-answer",
     options: [],
   }
