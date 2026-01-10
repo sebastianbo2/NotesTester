@@ -85,7 +85,9 @@ export default function Signup() {
       {/* Card Container */}
       <div className="w-full max-w-[450px] bg-card text-card-foreground border border-border p-8 rounded-lg shadow-card space-y-6">
         <div className="flex flex-col gap-2">
-          <Logo />
+          <div className="pointer-events-none">
+            <Logo />
+          </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             Sign up
           </h1>
