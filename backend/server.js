@@ -23,7 +23,11 @@ const sampleQuestions = [
     options: ['$3x^2 + 4x - 5$', '$3x^2 + 2x - 5$', '$x^2 + 4x - 5$', '$3x^3 + 4x^2 - 5$'],
   },
   {
-    question: 'The integral $\\int_0^1 x^2 dx = \\frac{1}{3}$',
+    question: `
+$$
+\\int_0^1 x^2 dx = \\frac{1}{3}
+$$
+`,
     type: "true-false",
     options: ["True", "False"],
   },

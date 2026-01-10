@@ -248,6 +248,6 @@
 
 .katex-display {
   margin: 1rem 0 !important;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: visible;
+  padding: 3px 0px;
 }
