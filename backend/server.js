@@ -3,6 +3,7 @@ import cors from "cors";
 import multer from "multer";
 import dotenv from "dotenv";
 import { uploadDocToThread, summarize, isDocReady } from "./documents.js";
+import { getById } from "./lib/db_request.js";
 
 dotenv.config();
 
@@ -48,7 +49,7 @@ const sampleQuestions = [
   }
 ]
 
-app.get("/api/files", (req, res) => {
+app.get("/api/files", async (req, res) => {
   const fileIds = req.query.fileIds
 
   const ids = Array.isArray(fileIds)
@@ -57,38 +58,27 @@ app.get("/api/files", (req, res) => {
   ? [fileIds]
   : [];
 
-  setTimeout(() => {
-    res.json(sampleQuestions)
-    console.log("Timer ended")
-}, 3000)
+//   setTimeout(() => {
+//     res.json(sampleQuestions)
+//     console.log("Timer ended")
+// }, 3000)
 
   console.log("print: ", ids)
 
-  // res.json(sampleQuestions);
-})
+  const getFilesFromDB = async (ids) => {
+    const files = await Promise.all(
+      ids.map(id => getById('documents', id))
+    )
 
-const correctedAnswers = [
-  {
-    correct: "yes",
-    modelAnswer: "GENERATED ANSWER",
-  },
-  {
-    correct: "no",
-    modelAnswer: "GENERATED ANSWER",
-  },
-  {
-    correct: "no",
-    modelAnswer: "GENERATED ANSWER",
-  },
-  {
-    correct: "yes",
-    modelAnswer: "GENERATED ANSWER",
-  },
-  {
-    correct: "no",
-    modelAnswer: "GENERATED ANSWER",
-  },
-]
+    return files
+  }
+
+  const files = await getFilesFromDB(ids)
+
+  console.log(files)
+
+  res.json(sampleQuestions)
+})
 
 app.post("/api/answers", express.json(), (req, res) => {
   const { questions } = req.body;
