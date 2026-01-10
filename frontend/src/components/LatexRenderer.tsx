@@ -1,54 +1,28 @@
 import 'katex/dist/katex.min.css';
-import katex from 'katex';
-import { useMemo } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 interface LatexRendererProps {
   content: string;
-  block?: boolean;
 }
 
-export const LatexRenderer = ({ content, block = false }: LatexRendererProps) => {
-  const renderedContent = useMemo(() => {
-    // Check if content contains LaTeX delimiters
-    const hasLatex = content.includes('$');
-    
-    if (!hasLatex) {
-      return content;
-    }
+function normalizeMathDelimiters(input: string) {
+  return input
+    // display math
+    .replace(/\\\[\s*([\s\S]*?)\s*\\\]/g, (_, math) => `\n\n$$\n${math}\n$$\n\n`)
+    // inline math
+    .replace(/\\\(\s*([\s\S]*?)\s*\\\)/g, (_, math) => `$${math}$`);
+}
 
-    // Parse mixed content with LaTeX
-    const parts = content.split(/(\$[^$]+\$)/g);
-    
-    const htmlParts = parts.map((part, index) => {
-      if (part.startsWith('$') && part.endsWith('$')) {
-        const latex = part.slice(1, -1);
-        try {
-          const html = katex.renderToString(latex, {
-            throwOnError: false,
-            displayMode: block,
-          });
-          return html;
-        } catch (error) {
-          console.error('LaTeX parsing error:', error);
-          return `<span class="text-destructive">${part}</span>`;
-        }
-      }
-      return part.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    });
-    
-    return htmlParts.join('');
-  }, [content, block]);
 
-  const hasLatex = content.includes('$');
-
-  if (!hasLatex) {
-    return <span>{content}</span>;
-  }
-
+export const LatexRenderer = ({ content }: LatexRendererProps) => {
   return (
-    <span 
-      className="latex-content"
-      dangerouslySetInnerHTML={{ __html: renderedContent }}
-    />
+    <ReactMarkdown
+      remarkPlugins={[remarkMath]}
+      rehypePlugins={[rehypeKatex]}
+    >
+      {normalizeMathDelimiters(content)}
+    </ReactMarkdown>
   );
 };

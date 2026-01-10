@@ -178,10 +178,8 @@ export const QuestionCard = ({
         )}
       </div>
 
-      <div className="mb-6">
-        <h3 className="text-lg font-medium leading-relaxed">
+      <div className="mb-6 math-block">
           <LatexRenderer content={question.question} />
-        </h3>
       </div>
 
       {renderQuestionContent()}
