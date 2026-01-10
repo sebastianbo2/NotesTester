@@ -1,13 +1,10 @@
 export type QuestionType = 'multiple-choice' | 'short-answer' | 'true-false' | 'long-answer';
 
 export interface Question {
-  id: string;
-  type: QuestionType;
   question: string;
+  type: QuestionType;
   options?: string[];
-  correctAnswer: string;
   userAnswer?: string;
-  isLatex?: boolean;
 }
 
 export interface ExamConfig {
@@ -32,7 +29,7 @@ export interface Document {
   type: 'pdf' | 'txt';
   folderId: string;
   size: string;
-  uploadedAt: Date;
+  uploadedAt: string;
 }
 
 export interface Folder {

@@ -8,6 +8,9 @@ import { ExamLoadingState } from '@/components/ExamLoadingState';
 import { generateExam } from '@/lib/mockApi';
 import { Question, ExamConfig } from '@/types/exam';
 import { Link } from 'react-router-dom';
+import { Document } from '@/types/exam';
+
+type UploadStatus = "idle" | "uploading" | "indexing" | "success" | "error";
 
 const ActiveExam = () => {
   const location = useLocation();
@@ -16,8 +19,13 @@ const ActiveExam = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [status, setStatus] = useState<UploadStatus>("idle");
 
   const config = location.state?.config as ExamConfig | undefined;
+
+  const examQuestions = location.state?.questions as Question[]
+
+  console.log(examQuestions)
 
   useEffect(() => {
     if (!config) {
@@ -35,10 +43,10 @@ const ActiveExam = () => {
     loadExam();
   }, [config, navigate]);
 
-  const handleAnswerChange = (questionId: string, answer: string) => {
+  const handleAnswerChange = (questionId: number, answer: string) => {
     setQuestions((prev) =>
-      prev.map((q) =>
-        q.id === questionId ? { ...q, userAnswer: answer } : q
+      prev.map((q, idx) =>
+        idx === questionId ? { ...q, userAnswer: answer } : q
       )
     );
   };
@@ -100,9 +108,9 @@ const ActiveExam = () => {
 
           {/* Questions List */}
           <main className="flex-1 max-w-3xl mx-auto space-y-6 pb-24">
-            {questions.map((question, index) => (
+            {examQuestions.map((question, index) => (
               <div
-                key={question.id}
+                key={index}
                 ref={(el) => (questionRefs.current[index] = el)}
                 onClick={() => setCurrentQuestionIndex(index)}
               >

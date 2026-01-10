@@ -72,7 +72,7 @@ export async function summarize() {
 
   // Ask a question about the document and stream the response
   const stream = await client.addMessage(thread.threadId, {
-    content: "Generate questions for a practice exam based on the content present in the documents uploaded (the questions in the document are references for what types of questions/what material to generate the questions on). Do not output any extra text, only output the questions, and separate them by the \"`\" symbol: make sure not to use that symbol anywhere else (only separation). These are the parameters for the exam (in order) : Amount of questions, difficulty: ",
+    content: "Generate questions for a practice exam on the documents uploaded. Do not output any extra text, only output the questions, and separate them by the \"`\" symbol: make sure not to use that symbol anywhere else (only separation). These are the parameters for the exam (in order) : Amount of questions, difficulty: ",
     stream: true,
   });
 
