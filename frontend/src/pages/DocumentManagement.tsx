@@ -35,6 +35,7 @@ const DocumentManagement = () => {
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [documents, setDocuments] = useState(mockDocuments);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -42,28 +43,71 @@ const DocumentManagement = () => {
     ? documents.filter((doc) => doc.folderId === selectedFolderId)
     : documents;
 
-  useEffect(() => {
-    console.log(supabase);
-  }, []);
-
   // DOCUMENT UPLOADING
   useEffect(() => {
     if (uploadedFile) {
-      // this doesnt actually add them to DB
+      const uploadToDB = async () => {
+        try {
+          // SUPABASE
 
-      const fullName = uploadedFile.name.split(".");
+          // unique path to avoid collisions
+          // TODO: {user_id}/{unique_file_id}/{original_filename} when auth is done
+          const fileExt = uploadedFile.name.split(".").pop();
+          const uniqueFileName = `${crypto.randomUUID()}.${fileExt}`;
+          // const storagePath = `uploads/${uniqueFileName}`;
+          const storagePath = uniqueFileName;
 
-      const newDoc: Document = {
-        id: crypto.randomUUID(),
-        name: fullName[0],
-        type: "pdf",
-        folderId: "folder-1",
-        size: "1.3MB",
-        uploadedAt: new Date(),
+          // upload "uploadedFile" to supabase "documents" bucket
+          const { data: storageData, error: storageError } =
+            await supabase.storage
+              .from("documents") // Ensure this bucket exists in Supabase Storage
+              .upload(storagePath, uploadedFile);
+
+          if (storageError) {
+            setError(storageError);
+          }
+
+          // create the record in the 'documents' table
+          const { data: dbData, error: dbError } = await supabase
+            .from("documents")
+            .insert([
+              {
+                display_name: uploadedFile.name,
+                storage_path: storagePath,
+                status: "pending", // default value
+              },
+            ])
+            .select(); // Returns the new row, including the generated ID
+
+          if (dbError) {
+            setError(dbError);
+          }
+
+          console.log("Document ready for processing:", dbData[0]);
+
+          // STATE (FRONTEND)
+          const newDoc: Document = {
+            id: crypto.randomUUID(),
+            name: uploadedFile.name,
+            type: "pdf",
+            folderId: "folder-1",
+            size: "1.3MB",
+            uploadedAt: new Date(),
+          };
+          setDocuments([...documents, newDoc]);
+        } catch (err) {
+          setError(err);
+        }
       };
-      setDocuments([...documents, newDoc]);
+
+      uploadToDB();
     }
   }, [uploadedFile]);
+
+  // TODO: better error handling, possibly with Banner.tsx
+  useEffect(() => {
+    console.error("An error occured: ", error);
+  }, [error]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
