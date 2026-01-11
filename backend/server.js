@@ -8,6 +8,9 @@ import {
   isDocReady,
 } from "./documents/documents.js";
 import { createNewAssistant } from "./documents/createNewAssistant.js";
+import { getById } from "./lib/db_request.js";
+import { supabase } from "./lib/supabase.js";
+import fetchQuestions from "./lib/fetchQuestions.js";
 
 dotenv.config();
 
@@ -91,24 +94,11 @@ app.get("/api/files", async (req, res) => {
 
   const ids = Array.isArray(fileIds) ? fileIds : fileIds ? [fileIds] : [];
 
-//   setTimeout(() => {
-//     res.json(sampleQuestions)
-//     console.log("Timer ended")
-// }, 3000)
+  const questions = await fetchQuestions(ids)
 
   console.log("print: ", ids);
 
-  const getFilesFromDB = async (ids) => {
-    const files = await Promise.all(
-      ids.map(id => getById('documents', id))
-    )
-
-    return files
-  }
-
-  const files = await getFilesFromDB(ids)
-
-  console.log(files)
+  console.log(questions)
 
   res.json(sampleQuestions)
 })
