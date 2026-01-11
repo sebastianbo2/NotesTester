@@ -6,7 +6,7 @@ import {
   uploadDocToThread,
   summarize,
   isDocReady,
-} from "./documents/documents.js";
+} from "./documents/documentsOld.js";
 import { createNewAssistant } from "./documents/createNewAssistant.js";
 import { getById } from "./lib/db_request.js";
 import supabase from "./config/supabaseClient.js";
@@ -89,18 +89,18 @@ const sampleQuestions = [
   },
 ];
 
-app.get("/api/files", async (req, res) => {
-  const fileIds = req.query.fileIds;
+app.post("/api/files", async (req, res) => {
+  const fileIds = req.body.fileIds;
 
-  const ids = Array.isArray(fileIds) ? fileIds : fileIds ? [fileIds] : [];
+  // console.log(fileIds);
+  // res.json({ fileIds: fileIds });
 
-  const questions = await fetchQuestions(ids);
+  // const ids = Array.isArray(fileIds) ? fileIds : fileIds ? [fileIds] : [];
 
-  console.log("print: ", ids);
-
+  const questions = await fetchQuestions(fileIds);
   console.log(questions);
 
-  res.json(sampleQuestions);
+  res.json({ sampleQuestions: sampleQuestions });
 });
 
 app.post("/api/answers", express.json(), (req, res) => {
