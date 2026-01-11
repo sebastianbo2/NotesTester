@@ -44,6 +44,10 @@ const ActiveExam = () => {
   const examId = location.state?.examId;
 
   useEffect(() => {
+    if (!examId) {
+      navigate("/dashboard");
+    }
+
     async function getExamData() {
       const { data, error } = await supabase
         .from("exams")

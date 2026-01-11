@@ -21,6 +21,10 @@ const Results = () => {
   const examId = location.state?.examId;
 
   useEffect(() => {
+    if (!examId) {
+      navigate("/dashboard");
+    }
+
     async function getExamData() {
       const { data, error } = await supabase
         .from("exams")
@@ -37,16 +41,6 @@ const Results = () => {
 
     getExamData();
   }, [examId]);
-
-  // const exam.questions = location.state?.exam.questions as Question[] | undefined;
-  // console.log(exam.questions);
-
-  // useEffect(() => {
-  //   if (!examId) {
-  //     navigate("/documents");
-  //     return;
-  //   }
-  // }, [examId]);
 
   const handleRetakeExam = () => {
     navigate("/exam", { state: { examId } });

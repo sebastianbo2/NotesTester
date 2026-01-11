@@ -222,7 +222,9 @@ const DocumentManagement = () => {
     const questions = await requestFiles(Array.from(selectedDocIds));
 
     const examTitle = `${documents[0].display_name}${
-      documents.length > 1 ? ` and ${documents.length - 1} others` : ""
+      documents.length > 1
+        ? ` and ${documents.length - 1} other${documents.length > 2 ? "s" : ""}`
+        : ""
     }`;
     const { data, error } = await supabase
       .from("exams")
