@@ -9,7 +9,7 @@ import {
 } from "./documents/documents.js";
 import { createNewAssistant } from "./documents/createNewAssistant.js";
 import { getById } from "./lib/db_request.js";
-import { supabase } from "./lib/supabase.js";
+import supabase from "./config/supabaseClient.js";
 import fetchQuestions from "./lib/fetchQuestions.js";
 
 dotenv.config();
@@ -90,18 +90,18 @@ const sampleQuestions = [
 ];
 
 app.get("/api/files", async (req, res) => {
-  const fileIds = req.query.fileIds
+  const fileIds = req.query.fileIds;
 
   const ids = Array.isArray(fileIds) ? fileIds : fileIds ? [fileIds] : [];
 
-  const questions = await fetchQuestions(ids)
+  const questions = await fetchQuestions(ids);
 
   console.log("print: ", ids);
 
-  console.log(questions)
+  console.log(questions);
 
-  res.json(sampleQuestions)
-})
+  res.json(sampleQuestions);
+});
 
 app.post("/api/answers", express.json(), (req, res) => {
   const { questions } = req.body;

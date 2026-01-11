@@ -1,155 +1,162 @@
 import { getById } from "./db_request.js";
-import { supabase } from "./supabase.js";
+import supabase from "../config/supabaseClient.js";
 
 export default async (ids) => {
-    const getFilesFromDB = async (ids) => {
-        const files = await Promise.all(
-          ids.map(id => getById('documents', id))
-        )
-    
-        return files
-    }
-    
-    const getFileBlobs = async (files) => {
-        // 1. Use Promise.all to wait for all async downloads in the map
-        const fileDataArray = await Promise.all(
-        files.map(async (file) => {
+  const getFilesFromDB = async (ids) => {
+    const files = await Promise.all(ids.map((id) => getById("documents", id)));
+
+    return files;
+  };
+
+  const getFileBlobs = async (files) => {
+    // 1. Use Promise.all to wait for all async downloads in the map
+    const fileDataArray = await Promise.all(
+      files.map(async (file) => {
         const { data, error } = await supabase.storage
-            .from('documents')
-            .download(file.storage_path);
+          .from("documents")
+          .download(file.storage_path);
 
         if (error) {
-            console.error(`Error downloading ${file.storage_path}:`, error);
-            return null;
+          console.error(`Error downloading ${file.storage_path}:`, error);
+          return null;
         }
 
         // 2. data is a Blob. To treat it like a File (useful for Backboard/FormData):
-        return new File([data], file.name || 'document.pdf', {
-            type: data.type || 'application/pdf',
+        return new File([data], file.name || "document.pdf", {
+          type: data.type || "application/pdf",
         });
-        })
-        );
+      })
+    );
 
-        // 3. Return the array of File objects, filtering out any failures
-        return fileDataArray.filter(f => f !== null);
-    };
-    
-    const files = await getFilesFromDB(ids)
-    const blobs = await getFileBlobs(files)
+    // 3. Return the array of File objects, filtering out any failures
+    return fileDataArray.filter((f) => f !== null);
+  };
 
-    const user = files[0].user_id
+  const files = await getFilesFromDB(ids);
+  const blobs = await getFileBlobs(files);
 
-    console.log("USER: ", user)
+  const user = files[0].user_id;
 
-    const frontLink = `https://app.backboard.io/api`
+  console.log("USER: ", user);
 
-    const assistant_search = await supabase
-    .from('assistants')
-    .select('*')
-    .eq('user_id', user)
-    .maybeSingle()
+  const frontLink = `https://app.backboard.io/api`;
 
-    const assistant = assistant_search.data.id
+  const assistant_search = await supabase
+    .from("assistants")
+    .select("*")
+    .eq("user_id", user)
+    .maybeSingle();
 
-    const response = await fetch(`${frontLink}/assistants`, {
-        headers: {
-            'X-API-KEY': `${process.env.BACKBOARD_KEY}`
-        }
-    })
+  const assistant = assistant_search.data.id;
 
-    const assistants = await response.json()
-
-    console.log("We currently hae this many assistants: ", assistants.length)
-
-    const thread_res = await fetch(`${frontLink}/assistants/${assistant}/threads`, {
-    method: 'POST',
+  const response = await fetch(`${frontLink}/assistants`, {
     headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': `${process.env.BACKBOARD_KEY}`,
+      "X-API-KEY": `${process.env.BACKBOARD_KEY}`,
     },
-    body: JSON.stringify({})
-    })
+  });
 
-    const threadObject = await thread_res.json()
-    const thread = threadObject.thread_id
+  const assistants = await response.json();
 
-    console.log("THREAD ID: ", thread)
-    
-    let processedDocuments = []
+  console.log("We currently hae this many assistants: ", assistants.length);
 
-    blobs.forEach(async (blob, index) => {
-        if (!blob) {
-            return
-        }
+  const thread_res = await fetch(
+    `${frontLink}/assistants/${assistant}/threads`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": `${process.env.BACKBOARD_KEY}`,
+      },
+      body: JSON.stringify({}),
+    }
+  );
 
-        const formData = new FormData();
+  const threadObject = await thread_res.json();
+  const thread = threadObject.thread_id;
 
-        console.log(blob)
+  console.log("THREAD ID: ", thread);
 
-        formData.append('file', blob, files[index].id)
+  let processedDocuments = [];
 
-        const response = await fetch(`${frontLink}/threads/${thread}/documents`, {
-            method: 'POST',
-            headers: {
-                'X-API-Key': `${process.env.BACKBOARD_KEY}`
-            },
-            body: formData
-        })
+  blobs.forEach(async (blob, index) => {
+    if (!blob) {
+      return;
+    }
 
-        const json = await response.json()
+    const formData = new FormData();
 
-        console.log("RESPONSE: ", json);
-        console.log("id: ", json.document_id)
+    console.log(blob);
 
-        processedDocuments.push(json.document_id)
+    formData.append("file", blob, files[index].id);
 
-        const res = await fetch (`${frontLink}/documents/${json.document_id}/status`, {
-            headers: {
-                'X-API-Key': `${process.env.BACKBOARD_KEY}`
-            }
-        })
+    const response = await fetch(`${frontLink}/threads/${thread}/documents`, {
+      method: "POST",
+      headers: {
+        "X-API-Key": `${process.env.BACKBOARD_KEY}`,
+      },
+      body: formData,
+    });
 
-        const json2 = await res.json()
+    const json = await response.json();
 
-        console.log("STATUS: ", json2)
-    })
+    console.log("RESPONSE: ", json);
+    console.log("id: ", json.document_id);
 
-    const doc_check_res = await fetch(`${frontLink}/threads/${thread}/documents`, {
+    processedDocuments.push(json.document_id);
+
+    const res = await fetch(
+      `${frontLink}/documents/${json.document_id}/status`,
+      {
         headers: {
-            'X-API-KEY': `${process.env.BACKBOARD_KEY}`
-        }
-    })
+          "X-API-Key": `${process.env.BACKBOARD_KEY}`,
+        },
+      }
+    );
 
-    const doc_json = await doc_check_res.json()
+    const json2 = await res.json();
 
-    console.log("DOCS: ", doc_json)
+    console.log("STATUS: ", json2);
+  });
 
-    console.log("ASSISTANT: ", assistant)
+  const doc_check_res = await fetch(
+    `${frontLink}/threads/${thread}/documents`,
+    {
+      headers: {
+        "X-API-KEY": `${process.env.BACKBOARD_KEY}`,
+      },
+    }
+  );
 
-    console.log("IDS: ", processedDocuments)
+  const doc_json = await doc_check_res.json();
 
-    // processedDocuments.forEach(async doc => {
-    //     const response = await fetch (`${frontLink}/documents/${doc}/status`, {
-    //         headers: {
-    //             'X-API-Key': `${process.env.BACKBOARD_KEY}`
-    //         }
-    //     })
+  console.log("DOCS: ", doc_json);
 
-    //     const json = await response.json()
+  console.log("ASSISTANT: ", assistant);
 
-    //     console.log("STATUS: ", json)
-    // })
+  console.log("IDS: ", processedDocuments);
 
-    const thread_delete_res = await fetch(`${frontLink}/threads/${thread}`, {
-        method: 'DELETE',
-        headers: {
-            'X-API-Key': `${process.env.BACKBOARD_KEY}`
-        }
-    })
+  // processedDocuments.forEach(async doc => {
+  //     const response = await fetch (`${frontLink}/documents/${doc}/status`, {
+  //         headers: {
+  //             'X-API-Key': `${process.env.BACKBOARD_KEY}`
+  //         }
+  //     })
 
-    const thread_deleted = await thread_delete_res.json()
+  //     const json = await response.json()
 
-    console.log("DELETION STATUS: ", thread_deleted)
+  //     console.log("STATUS: ", json)
+  // })
 
-    return []
-}
+  const thread_delete_res = await fetch(`${frontLink}/threads/${thread}`, {
+    method: "DELETE",
+    headers: {
+      "X-API-Key": `${process.env.BACKBOARD_KEY}`,
+    },
+  });
+
+  const thread_deleted = await thread_delete_res.json();
+
+  console.log("DELETION STATUS: ", thread_deleted);
+
+  return [];
+};

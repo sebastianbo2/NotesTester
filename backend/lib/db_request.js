@@ -1,11 +1,11 @@
 // lib/dbHelpers.js
-import { supabase } from './supabase.js';
+import supabase from "../config/supabaseClient.js";
 
 export async function getById(table, id) {
   const { data, error } = await supabase
     .from(table)
-    .select('*')
-    .eq('id', id)
+    .select("*")
+    .eq("id", id)
     .maybeSingle();
 
   if (error) {
