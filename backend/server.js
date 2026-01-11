@@ -2,26 +2,57 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import dotenv from "dotenv";
-import { uploadDocToThread, summarize, isDocReady } from "./documents.js";
-import { getById } from "./lib/db_request.js";
+import {
+  uploadDocToThread,
+  summarize,
+  isDocReady,
+} from "./documents/documents.js";
+import { createNewAssistant } from "./documents/createNewAssistant.js";
 
 dotenv.config();
 
 const app = express();
-app.use(cors());
 const upload = multer();
+
+app.use(cors());
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Hello world express");
+});
+
+app.post("/supabase/createNewAssistant", async (req, res) => {
+  const { user_id } = req.body;
+
+  if (!user_id) {
+    return res.status(400).json({ error: "user_id is required" });
+  }
+
+  try {
+    const assistantData = await createNewAssistant(user_id);
+
+    res.status(200).json({
+      message: "Assistant initialized",
+      assistant: assistantData,
+    });
+  } catch (error) {
+    console.error("Error creating assistant:", error);
+    res.status(500).json({ error: "Failed to initialize assistant" });
+  }
 });
 
 // format : id,type,question,options,correctAnswer,isLatex
 
 const sampleQuestions = [
   {
-    question: 'What is the derivative of $f(x) = x^3 + 2x^2 - 5x + 1$?',
+    question: "What is the derivative of $f(x) = x^3 + 2x^2 - 5x + 1$?",
     type: "multiple-choice",
-    options: ['$3x^2 + 4x - 5$', '$3x^2 + 2x - 5$', '$x^2 + 4x - 5$', '$3x^3 + 4x^2 - 5$'],
+    options: [
+      "$3x^2 + 4x - 5$",
+      "$3x^2 + 2x - 5$",
+      "$x^2 + 4x - 5$",
+      "$3x^3 + 4x^2 - 5$",
+    ],
   },
   {
     question: `
@@ -33,37 +64,39 @@ const sampleQuestions = [
     options: ["True", "False"],
   },
   {
-    question: 'Evaluate the limit: $\\lim_{x \\to 0} \\frac{\\sin(x)}{x}$',
+    question: "Evaluate the limit: $\\lim_{x \\to 0} \\frac{\\sin(x)}{x}$",
     type: "short-answer",
     options: [],
   },
   {
-    question: 'Which matrix operation is NOT commutative?',
+    question: "Which matrix operation is NOT commutative?",
     type: "multiple-choice",
-    options: ['Addition', 'Scalar multiplication', 'Matrix multiplication', 'Transpose'],
+    options: [
+      "Addition",
+      "Scalar multiplication",
+      "Matrix multiplication",
+      "Transpose",
+    ],
   },
   {
-    question: 'Explain the concept of eigenvalues and provide the formula for finding them for a 2×2 matrix.',
+    question:
+      "Explain the concept of eigenvalues and provide the formula for finding them for a 2×2 matrix.",
     type: "long-answer",
     options: [],
-  }
-]
+  },
+];
 
 app.get("/api/files", async (req, res) => {
   const fileIds = req.query.fileIds
 
-  const ids = Array.isArray(fileIds)
-  ? fileIds 
-  : fileIds 
-  ? [fileIds]
-  : [];
+  const ids = Array.isArray(fileIds) ? fileIds : fileIds ? [fileIds] : [];
 
 //   setTimeout(() => {
 //     res.json(sampleQuestions)
 //     console.log("Timer ended")
 // }, 3000)
 
-  console.log("print: ", ids)
+  console.log("print: ", ids);
 
   const getFilesFromDB = async (ids) => {
     const files = await Promise.all(
@@ -83,16 +116,16 @@ app.get("/api/files", async (req, res) => {
 app.post("/api/answers", express.json(), (req, res) => {
   const { questions } = req.body;
 
-  questions.forEach(question => {
-    question.modelAnswer = "$3x^2 + 4x - 5$"
-    const randInt = Math.random()
-    randInt <= 0.5 ? question.isCorrect = true : question.isCorrect = false
+  questions.forEach((question) => {
+    question.modelAnswer = "$3x^2 + 4x - 5$";
+    const randInt = Math.random();
+    randInt <= 0.5 ? (question.isCorrect = true) : (question.isCorrect = false);
   });
 
-  console.log(questions.map(question => question.userAnswer))
+  console.log(questions.map((question) => question.userAnswer));
 
   res.json(questions);
-})
+});
 
 app.post("/api/upload", upload.single("file"), async (req, res) => {
   try {

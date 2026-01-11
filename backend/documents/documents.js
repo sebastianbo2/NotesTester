@@ -1,11 +1,7 @@
-import { BackboardClient } from "backboard-sdk";
 import "dotenv/config";
 import mime from "mime";
+import backboard from "../config/backboardClient.js";
 
-// Initialize the Backboard client
-const client = new BackboardClient({
-  apiKey: process.env.BACKBOARD_KEY,
-});
 let thread = null;
 let assistant = null;
 let docId = null;
@@ -55,7 +51,7 @@ export async function isDocReady() {
     return false;
   }
 
-  const status = await client.getDocumentStatus(docId);
+  const status = await backboard.getDocumentStatus(docId);
   console.log(status.status);
   if (status.status === "indexed") {
     return true;
@@ -71,8 +67,9 @@ export async function summarize() {
   await initBackboard();
 
   // Ask a question about the document and stream the response
-  const stream = await client.addMessage(thread.threadId, {
-    content: "Generate questions for a practice exam on the documents uploaded. Do not output any extra text, only output the questions, and separate them by the \"`\" symbol: make sure not to use that symbol anywhere else (only separation). These are the parameters for the exam (in order) : Amount of questions, difficulty: ",
+  const stream = await backboard.addMessage(thread.threadId, {
+    content:
+      'Generate questions for a practice exam on the documents uploaded. Do not output any extra text, only output the questions, and separate them by the "`" symbol: make sure not to use that symbol anywhere else (only separation). These are the parameters for the exam (in order) : Amount of questions, difficulty: ',
     stream: true,
   });
 
@@ -87,19 +84,20 @@ export async function summarize() {
     }
   }
 
-  console.log(result)
+  console.log(result);
   return result;
 }
 
 export async function initBackboard() {
   if (!assistant) {
-    assistant = await client.createAssistant({
+    assistant = await backboard.createAssistant({
       name: "Document Assistant",
-      description: "An assistant that can analyze documents and make exams based on those documents: you follow format specifications",
+      description:
+        "An assistant that can analyze documents and make exams based on those documents: you follow format specifications",
     });
   }
 
   if (!thread) {
-    thread = await client.createThread(assistant.assistantId);
+    thread = await backboard.createThread(assistant.assistantId);
   }
 }

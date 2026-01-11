@@ -1,11 +1,11 @@
 import { Question, Document, Folder, ExamHistoryItem } from '@/types/exam';
 
-export const mockFolders: Folder[] = [
-  { id: 'folder-1', name: 'Calculus' },
-  { id: 'folder-2', name: 'Linear Algebra' },
-  { id: 'folder-3', name: 'Physics' },
-  { id: 'folder-4', name: 'Chemistry' },
-];
+// export const mockFolders: Folder[] = [
+//   { id: 'folder-1', name: 'Calculus' },
+//   { id: 'folder-2', name: 'Linear Algebra' },
+//   { id: 'folder-3', name: 'Physics' },
+//   { id: 'folder-4', name: 'Chemistry' },
+// ];
 
 // export const mockDocuments: Document[] = [
 //   { id: 'doc-1', name: 'Integration Techniques.pdf', type: 'pdf', folderId: 'folder-1', size: '2.4 MB', uploadedAt: '2024-01-15'},

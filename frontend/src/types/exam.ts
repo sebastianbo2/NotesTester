@@ -28,13 +28,14 @@ export interface Exam {
 
 export interface Document {
   id: string;
+  user_id: string;
   display_name: string;
   storage_path: string
   status: string;
   created_at: string;
-  type?: 'pdf' | 'txt';
-  folderId?: string;
-  size?: string;
+  folder_id: string;
+  size: number;
+  type: string;
 }
 
 export interface Folder {
