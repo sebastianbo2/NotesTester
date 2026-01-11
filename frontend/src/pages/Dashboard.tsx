@@ -251,7 +251,7 @@ const Dashboard = () => {
                   /* Empty state that fills the same 210px height */
                   <div className="flex flex-col items-center justify-center h-[210px] rounded-lg border-2 border-dashed border-muted/50">
                     <p className="text-sm text-muted-foreground text-center px-4">
-                      No exams taken yet. Start a document to see results.
+                      No exams taken yet.
                     </p>
                   </div>
                 )}
