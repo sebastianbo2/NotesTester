@@ -92,7 +92,25 @@ app.post("/api/files", async (req, res) => {
 
   console.log("OUTPUT:", output)
 
-  res.json(sampleQuestions);
+  const lines = output.split(/\r?\n/);
+  let questions = []
+
+  lines.forEach((line) => {
+    const params = line.split("~")
+
+    console.log("PARAMS: ", params)
+
+    const question = {
+      question: params[0],
+      type: params[1],
+      options: params[1] === "multiple-choice" ? params[2].split(",").map(option => option.trim()) : [],
+      correctAnswer: params[3]
+    }
+
+    questions.push(question)
+  })
+
+  res.json(questions);
 });
 
 app.post("/api/answers", express.json(), (req, res) => {

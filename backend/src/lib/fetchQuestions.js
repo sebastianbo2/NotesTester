@@ -123,7 +123,7 @@ export default async (ids) => {
     const question = {
       question: params[0],
       type: params[1],
-      options: params[1] === "multiple-choice" ? params[2].split(",") : [],
+      options: params[1] === "multiple-choice" ? params[2].split(",").map(option => option.trim()) : [],
       correctAnswer: params[3]
     }
 
