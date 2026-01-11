@@ -1,14 +1,15 @@
-import { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Brain, Send } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { QuestionNavigator } from '@/components/exam/QuestionNavigator';
-import { QuestionCard } from '@/components/exam/QuestionCard';
-import { ExamLoadingState } from '@/components/ExamLoadingState';
-import { generateExam } from '@/lib/mockApi';
-import { Question, ExamConfig } from '@/types/exam';
-import { Link } from 'react-router-dom';
-import { Document } from '@/types/exam';
+import { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Brain, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { QuestionNavigator } from "@/components/exam/QuestionNavigator";
+import { QuestionCard } from "@/components/exam/QuestionCard";
+import { ExamLoadingState } from "@/components/ExamLoadingState";
+import { generateExam } from "@/lib/mockApi";
+import { Question, ExamConfig } from "@/types/exam";
+import { Link } from "react-router-dom";
+import { Document } from "@/types/exam";
+import Logo from "@/components/icons/Logo";
 
 type UploadStatus = "idle" | "uploading" | "indexing" | "success" | "error";
 
@@ -25,7 +26,7 @@ const validateAnswers = async (questions: Question[]) => {
   );
 
   return await response.json();
-}
+};
 
 const ActiveExam = () => {
   const location = useLocation();
@@ -40,7 +41,7 @@ const ActiveExam = () => {
 
   useEffect(() => {
     if (!config) {
-      navigate('/documents');
+      navigate("/documents");
       return;
     }
 
@@ -58,29 +59,32 @@ const ActiveExam = () => {
     setQuestions((prev) =>
       prev.map((q, idx) => {
         if (idx === questionId) {
-          q.userAnswer = answer
+          q.userAnswer = answer;
         }
-        return q
+        return q;
       })
     );
   };
 
   const handleQuestionClick = (index: number) => {
     setCurrentQuestionIndex(index);
-    questionRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    questionRefs.current[index]?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
   };
 
   const handleSubmitExam = async () => {
-    const answeredQuestions = await validateAnswers(questions)
+    const answeredQuestions = await validateAnswers(questions);
 
-    navigate('/results', { state: { questions: answeredQuestions} });
+    navigate("/results", { state: { questions: answeredQuestions } });
   };
 
   if (isLoading) {
     return <ExamLoadingState />;
   }
 
-  console.log("QUESTIONS: ", questions)
+  console.log("QUESTIONS: ", questions);
 
   const answeredCount = questions.filter((q) => q.userAnswer).length;
 
@@ -89,17 +93,9 @@ const ActiveExam = () => {
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Brain className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Testem</h1>
-              <p className="text-xs text-muted-foreground">
-                {config?.subject || 'Exam in Progress'}
-              </p>
-            </div>
-          </Link>
+          <div className="pointer-events-none">
+            <Logo />
+          </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">
               {answeredCount} / {questions.length} answered
@@ -141,7 +137,11 @@ const ActiveExam = () => {
             ))}
 
             <div className="flex justify-center pt-8">
-              <Button onClick={handleSubmitExam} size="lg" className="gap-2 px-8">
+              <Button
+                onClick={handleSubmitExam}
+                size="lg"
+                className="gap-2 px-8"
+              >
                 <Send className="w-5 h-5" />
                 Submit Exam
               </Button>

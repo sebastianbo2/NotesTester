@@ -15,6 +15,7 @@ import FeatureCard from "@/components/onboarding/FeatureCard";
 import { Button } from "@/components/ui/button";
 import GetStartedButton from "@/components/onboarding/GetStartedButton";
 import BackgroundElements from "@/components/BackgroundElements";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const features = [
   {
@@ -59,6 +60,7 @@ export default function Onboarding() {
           <Logo />
 
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             {/* Log In Button: Subtle, Clean */}
             <Link to="/login">
               <Button
