@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { Brain, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { CircularProgress } from '@/components/CircularProgress';
-import { QuestionCard } from '@/components/exam/QuestionCard';
-import { Question } from '@/types/exam';
-import { submitExam } from '@/lib/mockApi';
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import { Brain, ArrowLeft, CheckCircle, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CircularProgress } from "@/components/CircularProgress";
+import { QuestionCard } from "@/components/exam/QuestionCard";
+import { Question } from "@/types/exam";
+import { submitExam } from "@/lib/mockApi";
+import Logo from "@/components/icons/Logo";
 
 const Results = () => {
   const location = useLocation();
@@ -16,11 +17,11 @@ const Results = () => {
 
   const questions = location.state?.questions as Question[] | undefined;
 
-  console.log(questions)
+  console.log(questions);
 
   useEffect(() => {
     if (!questions) {
-      navigate('/');
+      navigate("/");
       return;
     }
 
@@ -53,15 +54,7 @@ const Results = () => {
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Brain className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Testem</h1>
-              <p className="text-xs text-muted-foreground">Exam Results</p>
-            </div>
-          </Link>
+          <Logo />
           <Button variant="outline" asChild className="gap-2">
             <Link to="/">
               <ArrowLeft className="w-4 h-4" />
@@ -76,17 +69,18 @@ const Results = () => {
         {/* Score Overview */}
         <div className="text-center mb-12">
           <CircularProgress value={score || 0} size={220} className="mb-6" />
-          
+
           <h2 className="text-3xl font-bold text-foreground mb-2">
             {score !== null && score >= 80
-              ? 'Excellent Work!'
+              ? "Excellent Work!"
               : score !== null && score >= 50
-              ? 'Good Effort!'
-              : 'Keep Practicing!'}
+              ? "Good Effort!"
+              : "Keep Practicing!"}
           </h2>
-          
+
           <p className="text-muted-foreground mb-6">
-            You answered {totalCorrect} out of {questions.length} questions correctly.
+            You answered {totalCorrect} out of {questions.length} questions
+            correctly.
           </p>
 
           <div className="flex items-center justify-center gap-6">
@@ -96,15 +90,19 @@ const Results = () => {
             </div>
             <div className="flex items-center gap-2 text-destructive">
               <XCircle className="w-5 h-5" />
-              <span className="font-medium">{questions.length - totalCorrect} Incorrect</span>
+              <span className="font-medium">
+                {questions.length - totalCorrect} Incorrect
+              </span>
             </div>
           </div>
         </div>
 
         {/* Questions Review */}
         <div className="max-w-3xl mx-auto space-y-6">
-          <h3 className="text-xl font-semibold text-foreground mb-4">Review Your Answers</h3>
-          
+          <h3 className="text-xl font-semibold text-foreground mb-4">
+            Review Your Answers
+          </h3>
+
           {questions.map((question, index) => (
             <QuestionCard
               key={index}

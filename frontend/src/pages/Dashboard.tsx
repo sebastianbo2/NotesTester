@@ -20,6 +20,7 @@ import { mockExamHistory } from "@/lib/mockData";
 import { cn } from "@/lib/utils";
 import Logo from "@/components/icons/Logo";
 import { useAuth } from "@/context/AuthContext";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Dashboard = () => {
   const { logOutUser } = useAuth();
@@ -47,6 +48,7 @@ const Dashboard = () => {
             <Logo />
           </div>
           <nav className="flex items-center gap-2">
+            <ThemeToggle />
             <Button variant="ghost" asChild>
               <Link to="/documents">Documents</Link>
             </Button>

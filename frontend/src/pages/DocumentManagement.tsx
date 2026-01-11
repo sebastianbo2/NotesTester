@@ -7,7 +7,7 @@ import {
   useContext,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import { Brain, Upload, Plus, Trash2 } from "lucide-react";
+import { Upload, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FolderSidebar } from "@/components/folders/FolderSidebar";
 import { DocumentCard } from "@/components/documents/DocumentCard";
@@ -22,6 +22,7 @@ import DeleteFolderBanner from "@/components/folders/DeleteFolderBanner";
 import CreateFolderBanner from "@/components/folders/CreateFolderBanner";
 import { useAuth } from "@/context/AuthContext";
 import requestFiles from "@/api/requestFiles.ts";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const DocumentManagement = () => {
   const navigate = useNavigate();
@@ -327,6 +328,7 @@ const DocumentManagement = () => {
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <Logo />
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <Button
                 onClick={() => fileInputRef.current.click()}
                 variant="outline"
