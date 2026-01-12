@@ -4,7 +4,7 @@ import { Brain, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QuestionNavigator } from "@/components/exam/QuestionNavigator";
 import { QuestionCard } from "@/components/exam/QuestionCard";
-import { ExamLoadingState } from "@/components/ExamLoadingState";
+import { ExamLoadingState } from "@/pages/loading/ExamLoadingState";
 import { generateExam } from "@/lib/mockApi";
 import { Exam, Question } from "@/types/exam";
 import { Link } from "react-router-dom";
@@ -12,6 +12,7 @@ import { Document } from "@/types/exam";
 import Logo from "@/components/icons/Logo";
 import { useAuth } from "@/context/AuthContext";
 import supabase from "@/config/supabaseClient";
+import GradingLoading from "./loading/GradingLoading";
 
 type UploadStatus = "idle" | "uploading" | "indexing" | "success" | "error";
 
@@ -40,6 +41,7 @@ const ActiveExam = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>("");
   const [exam, setExam] = useState<Exam | null>(null);
+  const [isGrading, setIsGrading] = useState(false);
 
   const examId = location.state?.examId;
 
@@ -58,6 +60,13 @@ const ActiveExam = () => {
         console.error("an error occured loading exam: ", error);
         return;
       }
+
+      // Clear previous user answers if user is retaking the same exam
+      data[0].questions.forEach((question: Question) => {
+        if (question.userAnswer) {
+          delete question.userAnswer;
+        }
+      });
 
       setExam(data[0]);
     }
@@ -104,6 +113,7 @@ const ActiveExam = () => {
   };
 
   const handleSubmitExam = async () => {
+    setIsGrading(true);
     const answeredQuestions = await validateAnswers(questions, currentUserId);
 
     // update supabase
@@ -121,6 +131,7 @@ const ActiveExam = () => {
         "an error occured while updating exam entry in supabase: ",
         error
       );
+      setIsGrading(false);
       return;
     }
 
@@ -131,9 +142,11 @@ const ActiveExam = () => {
     return <ExamLoadingState />;
   }
 
-  console.log("QUESTIONS: ", questions);
-
   const answeredCount = questions.filter((q) => q.userAnswer).length;
+
+  if (isGrading) {
+    return <GradingLoading />;
+  }
 
   return (
     <div className="min-h-screen bg-background">

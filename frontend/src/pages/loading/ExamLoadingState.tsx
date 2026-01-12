@@ -1,16 +1,21 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { Brain } from 'lucide-react';
-import Logo from './icons/Logo';
+import { Skeleton } from "@/components/ui/skeleton";
+import { Brain } from "lucide-react";
+import Logo from "../../components/icons/Logo";
 
 export const ExamLoadingState = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8">
       <div className="text-center space-y-6 max-w-md">
-        <Logo/>
-        
+        <Logo />
+
         <div>
-          <h2 className="text-2xl font-semibold text-foreground mb-2">Parsing Knowledge...</h2>
-          <p className="text-muted-foreground">Our AI is analyzing your documents and generating personalized questions.</p>
+          <h2 className="text-2xl font-semibold text-foreground mb-2">
+            Parsing Knowledge...
+          </h2>
+          <p className="text-muted-foreground">
+            Our AI is analyzing your documents and generating personalized
+            questions.
+          </p>
         </div>
 
         <div className="space-y-3 w-full">

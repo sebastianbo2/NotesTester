@@ -7,7 +7,7 @@ import { QuestionCard } from "@/components/exam/QuestionCard";
 import { Exam, Question } from "@/types/exam";
 import { submitExam } from "@/lib/mockApi";
 import Logo from "@/components/icons/Logo";
-import LoadingScreen from "./LoadingScreen";
+import LoadingScreen from "./loading/LoadingScreen";
 import supabase from "@/config/supabaseClient";
 
 const Results = () => {

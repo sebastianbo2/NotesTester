@@ -4,7 +4,7 @@ import Logo from "@/components/icons/Logo";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import BackgroundElements from "@/components/BackgroundElements";
-import LoadingScreen from "./LoadingScreen";
+import LoadingScreen from "./loading/LoadingScreen";
 
 export default function Login() {
   const [open, setOpen] = useState(false);

@@ -16,7 +16,7 @@ import { ExamConfigModal } from "@/components/ExamConfigModal";
 import { ExamConfig, Document, Folder } from "@/types/exam";
 import { Link } from "react-router-dom";
 import supabase from "@/config/supabaseClient";
-import { ExamLoadingState } from "@/components/ExamLoadingState";
+import { ExamLoadingState } from "@/pages/loading/ExamLoadingState";
 import Logo from "@/components/icons/Logo";
 import DeleteFolderBanner from "@/components/folders/DeleteFolderBanner";
 import CreateFolderBanner from "@/components/folders/CreateFolderBanner";
