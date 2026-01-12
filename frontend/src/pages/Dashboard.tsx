@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FolderOpen,
   History,
@@ -27,6 +27,7 @@ import { Exam, Question } from "@/types/exam";
 import formatDate from "@/utils/formatDate";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { logOutUser, session } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [pastExams, setPastExams] = useState<Exam[] | null>(null);
@@ -87,6 +88,10 @@ const Dashboard = () => {
 
     return { totalExams, avgScore };
   }, [pastExams]);
+
+  const handleExamCardClick = (examId: string) => {
+    navigate("/results", { state: { examId } });
+  };
 
   const handleLogOut = async () => {
     try {
@@ -228,7 +233,8 @@ const Dashboard = () => {
                   pastExams.slice(0, 3).map((exam) => (
                     <div
                       key={exam.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-accent/50 hover:bg-accent transition-colors border border-transparent hover:border-border"
+                      onClick={() => handleExamCardClick(exam.id)}
+                      className="flex items-center justify-between p-3 rounded-lg bg-accent/50 hover:cursor-pointer hover:bg-accent transition-colors border border-transparent hover:border-border"
                     >
                       <div>
                         <h4 className="text-sm font-medium">{exam.title}</h4>

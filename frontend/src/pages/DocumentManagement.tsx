@@ -222,7 +222,9 @@ const DocumentManagement = () => {
     const questions = await requestFiles(Array.from(selectedDocIds));
 
     const examTitle = `${documents[0].display_name}${
-      documents.length > 1 ? ` and ${documents.length - 1} others` : ""
+      documents.length > 1
+        ? ` and ${documents.length - 1} other${documents.length > 2 ? "s" : ""}`
+        : ""
     }`;
     const { data, error } = await supabase
       .from("exams")
@@ -348,7 +350,7 @@ const DocumentManagement = () => {
       <div className="min-h-screen bg-background flex flex-col">
         {/* Header */}
         <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="container mx-auto py-4 flex items-center justify-between">
             <Logo />
             <div className="flex items-center gap-2">
               <ThemeToggle />
@@ -380,12 +382,14 @@ const DocumentManagement = () => {
         </header>
 
         {/* Main Content */}
-        <div className="flex-1 flex">
-          <FolderSidebar
-            folders={folders}
-            selectedFolderId={selectedFolderId}
-            onFolderSelect={setSelectedFolderId}
-          />
+        <div className="flex-1 flex container h-full">
+          <div className="min-h-0 py-6">
+            <FolderSidebar
+              folders={folders}
+              selectedFolderId={selectedFolderId}
+              onFolderSelect={setSelectedFolderId}
+            />
+          </div>
 
           <main className="flex-1 p-6">
             <div className="mb-6">

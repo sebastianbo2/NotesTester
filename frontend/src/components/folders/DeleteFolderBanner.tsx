@@ -21,9 +21,8 @@ export default function DeleteFolderBanner({
             Delete Folder
           </h3>
           <p className="text-sm text-muted-foreground">
-            Are you sure you want to delete{" "}
-            <span className="text-foreground font-medium">"{}"</span> and all
-            its content? <br></br>This action is irreversible.
+            Are you sure you want to delete this folder and all its content?{" "}
+            <br></br>This action is irreversible.
           </p>
         </div>
 

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import {
   ArrowUpDown,
@@ -37,6 +37,8 @@ type SortField = "title" | "score" | "completed_at" | "totalQuestions";
 type SortOrder = "asc" | "desc";
 
 export default function History() {
+  const navigate = useNavigate();
+
   const [isLoading, setIsLoading] = useState(true);
   const [pageError, setPageError] = useState<any>(null);
   const [sortField, setSortField] = useState<SortField>("completed_at");
@@ -130,6 +132,10 @@ export default function History() {
       setSortField(field);
       setSortOrder("desc");
     }
+  };
+
+  const handleCardClick = (examId: string) => {
+    navigate("/results", { state: { examId } });
   };
 
   const SortIcon = ({ field }: { field: SortField }) => {
@@ -264,7 +270,8 @@ export default function History() {
                   {sortedHistory.map((exam) => (
                     <TableRow
                       key={exam.id}
-                      className="hover:bg-muted/30 transition-colors"
+                      className="hover:bg-muted/30 hover:cursor-pointer transition-colors"
+                      onClick={() => handleCardClick(exam.id)}
                     >
                       <TableCell className="font-medium">
                         {exam.title}
