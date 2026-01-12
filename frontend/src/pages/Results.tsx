@@ -13,8 +13,6 @@ import supabase from "@/config/supabaseClient";
 const Results = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [score, setScore] = useState<number | null>(null);
-  const [totalCorrect, setTotalCorrect] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [exam, setExam] = useState<Exam | null>(null);
 
@@ -76,26 +74,30 @@ const Results = () => {
       <main className="container mx-auto px-4 py-8">
         {/* Score Overview */}
         <div className="text-center mb-12">
-          <CircularProgress value={score || 0} size={220} className="mb-6" />
+          <CircularProgress
+            value={exam.score || 0}
+            size={220}
+            className="mb-6"
+          />
 
           <h2 className="text-3xl font-bold text-foreground mb-2">
             Review Your Exam
           </h2>
 
           <p className="text-muted-foreground mb-6">
-            You answered {totalCorrect} out of {exam.questions.length} questions
-            correctly.
+            You answered {exam.correct_count} out of {exam.questions.length}{" "}
+            questions correctly.
           </p>
 
           <div className="flex items-center justify-center gap-6">
             <div className="flex items-center gap-2 text-success">
               <CheckCircle className="w-5 h-5" />
-              <span className="font-medium">{totalCorrect} Correct</span>
+              <span className="font-medium">{exam.correct_count} Correct</span>
             </div>
             <div className="flex items-center gap-2 text-destructive">
               <XCircle className="w-5 h-5" />
               <span className="font-medium">
-                {exam.questions.length - totalCorrect} Incorrect
+                {exam.questions.length - exam.correct_count} Incorrect
               </span>
             </div>
           </div>

@@ -21,6 +21,7 @@ export interface Exam {
   user_id: string;
   questions: Question[];
   score?: number;
+  correct_count?: number;
   created_at: string;
   completed_at?: string;
   title?: string;

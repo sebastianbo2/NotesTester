@@ -114,28 +114,38 @@ const ActiveExam = () => {
 
   const handleSubmitExam = async () => {
     setIsGrading(true);
+
     const answeredQuestions = await validateAnswers(questions, currentUserId);
 
-    // update supabase
-    const { data, error } = await supabase
+    // 2. Calculate the metrics
+    const totalQuestions = answeredQuestions.length;
+    const numCorrect = answeredQuestions.filter(
+      (q: Question) => q.isCorrect
+    ).length;
+
+    // Dynamic Score Calculation
+    const finalScore =
+      totalQuestions > 0 ? Math.round((numCorrect / totalQuestions) * 100) : 0;
+
+    // 3. Update Supabase
+    const { error } = await supabase
       .from("exams")
       .update({
-        questions: answeredQuestions,
+        questions: answeredQuestions, // The raw data (for review)
+        score: finalScore, // Pre-calculated for sorting/stats
+        correct_count: numCorrect,
         completed_at: new Date(),
-        score: 67, // TODO: dynamic scoring
       })
       .eq("id", examId);
 
     if (error) {
-      console.error(
-        "an error occured while updating exam entry in supabase: ",
-        error
-      );
+      console.error("Supabase update error: ", error);
       setIsGrading(false);
       return;
     }
 
-    navigate("/results", { state: { questions: answeredQuestions, examId } });
+    // 4. Navigate (Only pass the ID; let the Results page fetch the fresh data)
+    navigate("/results", { state: { examId } });
   };
 
   if (isLoading) {
