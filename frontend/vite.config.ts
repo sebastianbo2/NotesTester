@@ -3,9 +3,9 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: './', // This ensures Vite generates relative paths for all assets
+  // Change this from './' to '/'
+  base: "/", 
   server: {
     host: "::",
     port: 8080,
@@ -21,5 +21,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: "dist",
+    // Optional: ensures assets are always in the same folder structure
+    assetsDir: "assets", 
   },
 }));
