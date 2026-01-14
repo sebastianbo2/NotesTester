@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
   res.send("Hello world express");
 });
 
-app.post("/supabase/createNewAssistant", async (req, res) => {
+app.post("/api/createNewAssistant", async (req, res) => {
   const { user_id } = req.body;
 
   if (!user_id) {

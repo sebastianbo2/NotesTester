@@ -45,7 +45,7 @@ export default function Signup() {
         // create assistant for new signed user ID
         const userId = result.data.user.id;
         try {
-          const response = await fetch(`/supabase/createNewAssistant`, {
+          const response = await fetch(`/api/createNewAssistant`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ user_id: userId }),
