@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
+import dotenv from "dotenv";
 
+dotenv.config();
 dotenv.config();
 
 /**
@@ -57,7 +59,7 @@ export const isDocumentIndexed = async (docId) => {
     console.log(json);
 
     if (json.status === "indexed") return true;
-    if (json.status === "failed") throw new Error(`Indexing failed for ${docId}`);
+    if (json.status === "error") throw new Error(`Indexing failed for ${docId}`);
 
     // Wait 1 second before trying again
     await new Promise((r) => setTimeout(r, 1000));
