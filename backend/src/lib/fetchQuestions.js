@@ -69,8 +69,8 @@ export default async (ids, config) => {
   // Send a message and stream the response
   const stream = await backboard.addMessage(thread, {
     content: prompt,
-    llm_provider: "openrouter",
-    model_name: "meta-llama/llama-3.1-70b-instruct",
+    llm_provider: "openai",
+    model_name: "gpt-5",
     stream: true,
     // web_search: "Auto",
     memory: "Auto",
