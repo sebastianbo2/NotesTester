@@ -50,7 +50,7 @@ export default async (questions, user_id) => {
   const stream = await backboard.addMessage(thread, {
     content: prompt,
     llm_provider: "openai",
-    model_name: "gpt-5",
+    model_name: "gemini-2.5-pro",
     stream: true,
     // web_search: 'Auto',
     memory: "Auto",
