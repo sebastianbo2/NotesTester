@@ -49,7 +49,7 @@ export default async (questions, user_id) => {
   // Send a message and stream the response
   const stream = await backboard.addMessage(thread, {
     content: prompt,
-    llm_provider: "openai",
+    llm_provider: "google",
     model_name: "gemini-2.5-pro",
     stream: true,
     // web_search: 'Auto',
