@@ -145,7 +145,9 @@ export const QuestionCard = ({
             {showResults && (
               <div className="mt-3 p-3 rounded-lg bg-accent/50">
                 <span className="text-sm font-medium text-muted-foreground">
-                  {`Model Answer: ${question.modelAnswer}`}
+                  <LatexRenderer
+                    content={`Correct Answer: ${question.modelAnswer}`}
+                  />
                 </span>
                 {/* <p className="text-sm mt-1">{question.correctAnswer}</p> */}
               </div>
