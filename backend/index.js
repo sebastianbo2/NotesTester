@@ -143,8 +143,8 @@ app.post("/api/answers", express.json(), async (req, res) => {
   // res.json(questions);
 });
 
-export default app;
+// export default app;
 
-// app.listen(process.env.PORT || 8000, () => {
-//   console.log("Server is listening");
-// });
+app.listen(process.env.PORT || 8000, () => {
+  console.log("Server is listening");
+});
